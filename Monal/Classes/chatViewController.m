@@ -125,6 +125,8 @@ static const int ddLogLevel = LOG_LEVEL_ERROR;
     
     self.messageTable.rowHeight = UITableViewAutomaticDimension;
     self.messageTable.estimatedRowHeight=75.0f;
+    
+    [self becomeFirstResponder];
   
 }
 
@@ -1243,15 +1245,15 @@ static const int ddLogLevel = LOG_LEVEL_ERROR;
 }
 
 
-//-(BOOL) canBecomeFirstResponder
-//{
-//    return YES;
-//}
-//
-//-(UIView *) inputAccessoryView
-//{
-//    return self.inputContainerView;
-//}
+-(BOOL) canBecomeFirstResponder
+{
+    return YES;
+}
+
+-(UIView *) inputAccessoryView
+{
+    return self.inputContainerView;
+}
 
 
 # pragma mark - Textview delegate functions
@@ -1317,6 +1319,7 @@ static const int ddLogLevel = LOG_LEVEL_ERROR;
 -(void) keyboardDidHide: (NSNotification *)notif
 {
 	DDLogVerbose(@"kbd did hide ");
+    self.inputContainerView.hidden=YES;
 }
 
 -(void) keyboardWillHide:(NSNotification *) notification
