@@ -280,7 +280,6 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
         
         NSMutableDictionary *settings = [ [NSMutableDictionary alloc ]
                                          initWithObjectsAndKeys:
-                                         [NSNull null],kCFStreamSSLPeerName,
                                          kCFStreamSocketSecurityLevelNegotiatedSSL,
                                          kCFStreamSSLLevel,
                                          nil ];
@@ -289,6 +288,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
         {
             NSDictionary* secureOFF= [ [NSDictionary alloc ]
                                       initWithObjectsAndKeys:
+                                      [NSNull null],kCFStreamSSLPeerName,
                                       [NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredCertificates,
                                       [NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredRoots,
                                       [NSNumber numberWithBool:YES], kCFStreamSSLAllowsAnyRoot,
@@ -2426,11 +2426,9 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
                     {
                         if(streamNode.startTLSProceed)
                         {
-                            NSMutableDictionary *settings = [ [NSMutableDictionary alloc ]
-                                                             initWithObjectsAndKeys:
-                                                             [NSNull null],kCFStreamSSLPeerName,
-                                                             nil ];
-                            
+                            NSMutableDictionary *settings = [[NSMutableDictionary alloc ] init];
+                                                             
+                           
                             if(self->_brokenServerSSL)
                             {
                                 DDLogInfo(@"recovering from broken SSL implemtation limit to ss3-tl1");
@@ -2445,6 +2443,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
                             {
                                 NSDictionary* secureOFF= [ [NSDictionary alloc ]
                                                           initWithObjectsAndKeys:
+                                                          [NSNull null],kCFStreamSSLPeerName,
                                                           [NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredCertificates,
                                                           [NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredRoots,
                                                           [NSNumber numberWithBool:YES], kCFStreamSSLAllowsAnyRoot,
@@ -2467,10 +2466,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
                             {
                                 DDLogError(@"not sure.. Could not confirm Set TLS properties on streams.");
                                 DDLogInfo(@"Set TLS properties on streams.security level %@", [self->_iStream propertyForKey:NSStreamSocketSecurityLevelKey]);
-                                
-                                //                        NSDictionary* info2=@{kaccountNameKey:_fulluser, kaccountNoKey:_accountNo,
-                                //                                              kinfoTypeKey:@"connect", kinfoStatusKey:@"Could not secure connection"};
-                                //                        [self.contactsVC updateConnecting:info2];
+
                                 
                             }
                             
