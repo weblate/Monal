@@ -50,7 +50,7 @@ FOUNDATION_EXPORT NSString *const kCompletion;
 typedef void (^xmppCompletion)(BOOL success, NSString *message);
 typedef void (^xmppDataCompletion)(NSData *captchaImage, NSDictionary *hiddenFields);
 
-@interface xmpp : NSObject <NSStreamDelegate>
+@interface xmpp : NSObject
 
 @property (nonatomic,strong) NSString* pushNode;
 @property (nonatomic,strong) NSString* pushSecret;
@@ -91,7 +91,8 @@ typedef void (^xmppDataCompletion)(NSData *captchaImage, NSDictionary *hiddenFie
 @property (nonatomic, readonly) xmppState accountState;
 
 // discovered properties
-@property (nonatomic,strong)  NSArray* discoveredServerList;
+@property (nonatomic,strong)  NSArray* discoveredServersList;
+@property (nonatomic,strong)  NSMutableArray* usableServersList;
 
 @property (nonatomic,strong)  NSArray*  roomList;
 @property (nonatomic, strong) NSArray* rosterList;
