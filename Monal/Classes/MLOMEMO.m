@@ -956,6 +956,9 @@ $$
     {
         [self deleteDeviceForSource:jid andRid:device.intValue];
     }
-    [self.account.pubsub fetchNode:@"eu.siacs.conversations.axolotl.devicelist" from:jid withItemsList:nil andHandler:$newHandler(self, handleManualDevices)];}
+    [self sendOMEMOBundle];
+    [self.account.pubsub fetchNode:@"eu.siacs.conversations.axolotl.devicelist" from:self.accountJid withItemsList:nil andHandler:$newHandler(self, handleManualDevices)];
+    [self.account.pubsub fetchNode:@"eu.siacs.conversations.axolotl.devicelist" from:jid withItemsList:nil andHandler:$newHandler(self, handleManualDevices)];
+}
 
 @end
