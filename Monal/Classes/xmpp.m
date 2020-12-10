@@ -3116,11 +3116,13 @@ NSString *const kData=@"data";
     //try to send remaining buffered data first
     if(_outputBufferByteCount>0)
     {
+        DDLogVerbose(@"sending remaining bytes in outputBuffer: %lu", (unsigned long)_outputBufferByteCount);
         NSInteger sentLen=[_oStream write:_outputBuffer maxLength:_outputBufferByteCount];
         if(sentLen!=-1)
         {
             if(sentLen!=_outputBufferByteCount)		//some bytes remaining to send --> trim buffer and return NO
             {
+                DDLogVerbose(@"could not send all bytes in outputBuffer: %lu of %lu sent, %lu remaining", (unsigned long)sentLen, (unsigned long)_outputBufferByteCount, (unsigned long)(_outputBufferByteCount-sentLen));
                 memmove(_outputBuffer, _outputBuffer+(size_t)sentLen, _outputBufferByteCount-(size_t)sentLen);
                 _outputBufferByteCount-=sentLen;
                 _streamHasSpace=NO;
@@ -3128,6 +3130,7 @@ NSString *const kData=@"data";
             }
             else
             {
+                DDLogVerbose(@"managed to send whole outputBuffer: %lu bytes", (unsigned long)sentLen);
                 //dealloc empty buffer
                 free(_outputBuffer);
                 _outputBuffer=nil;
@@ -3138,6 +3141,7 @@ NSString *const kData=@"data";
         {
             NSError* error=[_oStream streamError];
             DDLogError(@"sending: failed with error %ld domain %@ message %@", (long)error.code, error.domain, error.userInfo);
+            //reconnect from third party queue to not block send queue
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 [self reconnect];
             });
@@ -3153,6 +3157,7 @@ NSString *const kData=@"data";
     {
         if(sentLen!=rawstringLen)
         {
+            DDLogVerbose(@"could not send all bytes of outgoing stanza: %lu of %lu sent, %lu remaining", (unsigned long)sentLen, (unsigned long)rawstringLen, (unsigned long)(rawstringLen-sentLen));
             //allocate new _outputBuffer
             _outputBuffer=malloc(sizeof(uint8_t) * (rawstringLen-sentLen));
             //copy the remaining data into the buffer and set the buffer pointer accordingly
@@ -3161,13 +3166,17 @@ NSString *const kData=@"data";
             _streamHasSpace=NO;
         }
         else
+        {
+            DDLogVerbose(@"managed to send whole outgoing stanza: %lu bytes", (unsigned long)sentLen);
             _outputBufferByteCount=0;
+        }
         return YES;
     }
     else
     {
         NSError* error=[_oStream streamError];
         DDLogError(@"sending: failed with error %ld domain %@ message %@", (long)error.code, error.domain, error.userInfo);
+        //reconnect from third party queue to not block send queue
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self reconnect];
         });
