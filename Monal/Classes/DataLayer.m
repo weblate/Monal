@@ -294,6 +294,13 @@ static NSDateFormatter* dbFormatter;
         [self.db executeNonQuery:@"DELETE FROM message_history WHERE account_id=?;" andArguments:@[accountNo]];
         
         [self.db executeNonQuery:@"DELETE FROM activechats WHERE account_id=?;" andArguments:@[accountNo]];
+        // delete omemo related entries
+        [self.db executeNonQuery:@"DELETE FROM signalContactIdentity WHERE account_id=?;" andArguments:@[accountNo]];
+        [self.db executeNonQuery:@"DELETE FROM signalContactKey WHERE account_id=?;" andArguments:@[accountNo]];
+        [self.db executeNonQuery:@"DELETE FROM signalIdentity WHERE account_id=?;" andArguments:@[accountNo]];
+        [self.db executeNonQuery:@"DELETE FROM signalPreKey WHERE account_id=?;" andArguments:@[accountNo]];
+        [self.db executeNonQuery:@"DELETE FROM signalSignedPreKey WHERE account_id=?;" andArguments:@[accountNo]];
+
         return [self.db executeNonQuery:@"DELETE FROM account WHERE account_id=?;" andArguments:@[accountNo]];
     }];
 }
@@ -2033,12 +2040,21 @@ static NSDateFormatter* dbFormatter;
         [self updateDBTo:4.995 withBlock:^{
             [self.db executeNonQuery:@"CREATE UNIQUE INDEX IF NOT EXISTS uniqueActiveChat ON activechats(buddy_name, account_id);"];
         }];
-        
+
         [self updateDBTo:4.996 withBlock:^{
             //remove all icon hashes to reload all icons on next app/nse start
             //(the db upgrade mechanism will make sure that no smacks resume will take place and pep pushes come in for all avatars)
             [self.db executeNonQuery:@"UPDATE account SET iconhash='';"];
             [self.db executeNonQuery:@"UPDATE buddylist SET iconhash='';"];
+        }];
+
+        [self updateDBTo:5.0 withBlock:^{
+            // cleanup omemo tables
+            [self.db executeNonQuery:@"DELETE FROM signalContactIdentity WHERE account_id NOT IN (SELECT account_id FROM account);"];
+            [self.db executeNonQuery:@"DELETE FROM signalContactKey WHERE account_id NOT IN (SELECT account_id FROM account);"];
+            [self.db executeNonQuery:@"DELETE FROM signalIdentity WHERE account_id NOT IN (SELECT account_id FROM account);"];
+            [self.db executeNonQuery:@"DELETE FROM signalPreKey WHERE account_id NOT IN (SELECT account_id FROM account);"];
+            [self.db executeNonQuery:@"DELETE FROM signalSignedPreKey WHERE account_id NOT IN (SELECT account_id FROM account);"];
         }];
     }];
     
